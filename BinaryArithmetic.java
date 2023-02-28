@@ -1,89 +1,149 @@
-enum biRepresentMarker {
-    direct,
-    reversed,
-    additional,
+enum BinRepresentationMarker {
+    DIRECT,
+    REVERSED,
+    ADDITIONAL,
 }
 public class BinaryArithmetic {
 
-    int element1;       BinaryCode bi_element1;
-    int element2;       BinaryCode bi_element2;
-    double result = 0;         BinaryCode bi_result;
+    private int element1;
+    private BinaryCode binElement1;
+    private int element2;
+    private BinaryCode binElement2;
+    private BinaryCode binResult;
+    private final int WORD_LENGTH;
 
-    int WordLength = 32;
-    biRepresentMarker result_marker = biRepresentMarker.direct;
+    BinRepresentationMarker resultMarker = BinRepresentationMarker.DIRECT;
+
+    public int getElement1() {
+        return element1;
+    }
+
+    public int getElement2() {
+        return element2;
+    }
+
+    public void setElement1(int element1) {
+        this.element1 = element1;
+    }
+
+    public BinaryCode getBinElement1() {
+        return binElement1;
+    }
+
+    public void setBinElement1(BinaryCode binElement1) {
+        this.binElement1 = binElement1;
+    }
+
+    public void setElement2(int element2) {
+        this.element2 = element2;
+    }
+
+    public BinaryCode getBinElement2() {
+        return binElement2;
+    }
+
+    public void setBinElement2(BinaryCode binElement2) {
+        this.binElement2 = binElement2;
+    }
+
+    public BinaryCode getBinResult() {
+        return binResult;
+    }
+
+    public void setBinResult(BinaryCode binResult) {
+        this.binResult = binResult;
+    }
+
+    public int getWordLength() {
+        return WORD_LENGTH;
+    }
 
     public BinaryArithmetic(int el1, int el2) {
-        //System.out.println();
-        this.element1 = el1;
-        this.element2 = el2;
-        //
-        bi_element1 = new BinaryCode(el1);
-        bi_element2 = new BinaryCode(el2);
-        //
-        bi_result = new BinaryCode(0, WordLength);
+        WORD_LENGTH = 32;
+        element1 = el1;
+        element2 = el2;
+
+        binElement1 = new BinaryCode(el1);
+        binElement2 = new BinaryCode(el2);
+
+        binResult = new BinaryCode(0, WORD_LENGTH);
     }
 
-    public BinaryArithmetic(int el1, int el2, int word_length) {
-        new BinaryArithmetic(el1, el2);
-        WordLength = word_length;
+
+    public BinaryArithmetic(int el1, int el2, int wordLength) {
+        WORD_LENGTH = wordLength;
+        element1 = el1;
+        element2 = el2;
+
+        binElement1 = new BinaryCode(el1, WORD_LENGTH);
+        binElement2 = new BinaryCode(el2, WORD_LENGTH);
+
+        binResult = new BinaryCode(0, WORD_LENGTH);
     }
-    void processCodeRepresentation() {                          //при необходимости возвращает представление числа в прямой код
-        Character Sign = bi_result.getBinRepresent().get(0);
-        if (result_marker == biRepresentMarker.reversed) {
-            bi_result.invertSignificantBits();
+    double processCodeRepresentation() {                          //при необходимости возвращает представление числа в прямой код
+        Character sign = binResult.getBinRepresent().get(0);
+        int result;
+        returnToDirectCode(binResult);
+        binResult.getBinRepresent().set(0, '0');
+        result = Integer.parseInt(binResult.toString(), 2);
+        binResult.getBinRepresent().set(0, sign);
+        if(sign == '1') result *= -1;
+        return result;
+    }
+
+    private void returnToDirectCode(BinaryCode code) {
+        if (resultMarker == BinRepresentationMarker.REVERSED) {
+            code.invertSignificantBits();
         }
-        if (result_marker == biRepresentMarker.additional) {
-            bi_result.minusOneBit();
-            bi_result.invertSignificantBits();
+        if (resultMarker == BinRepresentationMarker.ADDITIONAL) {
+            code.minusOneBit();
+            code.invertSignificantBits();
         }
-        bi_result.getBinRepresent().set(0, '0');
-        result = Integer.parseInt(bi_result.toString(), 2);
-        bi_result.getBinRepresent().set(0, Sign);
-        if(Sign == '1') result *= -1;
     }
 
-    public void binaryAdder() {
-        for (int i = WordLength-1; i > 0; i--) {
-            char to_be_put = bi_element2.getBinRepresent().get(i);
-            char already_there = bi_element1.getBinRepresent().get(i);
+    public BinaryCode execBinaryAdder() {
+        for (int iter = WORD_LENGTH -1; iter > 0; iter--) {
+            char toBePut = binElement2.getBinRepresent().get(iter);
+            char alreadyThere = binElement1.getBinRepresent().get(iter);
 
-            if (to_be_put == '0') {
-                bi_result.getBinRepresent().set(i, already_there);
+            if (toBePut == '0') {
+                binResult.getBinRepresent().set(iter, alreadyThere);
                 continue;
             }
-            if (already_there == '0') {
-                bi_result.getBinRepresent().set(i, to_be_put);
+            if (alreadyThere == '0') {
+                binResult.getBinRepresent().set(iter, toBePut);
                 continue;
             }
-            if(bi_result.getBinRepresent().get(i)!='1') bi_result.getBinRepresent().set(i, '0');
-            makeShift(i);
+            if(binResult.getBinRepresent().get(iter)!='1') binResult.getBinRepresent().set(iter, '0');
+            makeShift(iter);
         }
+        return binResult;
     }
 
     protected void makeShift(int index) {                               //переносит единицу в старший разряд
         if (index < 1) {
-            bi_result.getBinRepresent().set(index, '1');
+            binResult.getBinRepresent().set(index, '1');
             return;
         }
-        if (bi_element1.getBinRepresent().get(index-1) == '0') {
-            bi_element1.getBinRepresent().set(index-1, '1');
+        if (binElement1.getBinRepresent().get(index-1) == '0') {
+            binElement1.getBinRepresent().set(index-1, '1');
             return;
         }
-        if (bi_element2.getBinRepresent().get(index-1) == '0') {
-            bi_element2.getBinRepresent().set(index-1, '1');
+        if (binElement2.getBinRepresent().get(index-1) == '0') {
+            binElement2.getBinRepresent().set(index-1, '1');
             return;
         }
-        bi_result.getBinRepresent().set(index-1, '1');
+        binResult.getBinRepresent().set(index-1, '1');
 
     }
-    protected void changeSummand() {                                    //меняет слагаемые местами
-        int t_el = element1;
-        BinaryCode t_bi_el = bi_element1;
+    protected void changeSummand() {                                   //меняет слагаемые местами
+        int tempElement = element1;
+        BinaryCode tempBinElement = binElement1;
 
         element1 = element2;
-        bi_element1 = bi_element2;
-        element2 = t_el;
-        bi_element2 = t_bi_el;
+        binElement1 = binElement2;
+        element2 = tempElement;
+        binElement2 = tempBinElement;
     }
 
     protected void placeSign(){}

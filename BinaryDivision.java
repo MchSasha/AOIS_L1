@@ -1,160 +1,158 @@
-import java.util.ArrayList;
-
 public class BinaryDivision extends BinaryArithmetic {
-    BinarySumDiff DifSolver = new BinarySumDiff(0, 0); ///??????????
-    BinaryCode IntermidDividend = new BinaryCode(0);
-    BinaryCode IntermidResult = new BinaryCode(0);
+    private BinarySumDiff difSolver = new BinarySumDiff(0, 0);                      //9/3
 
-    Character SignOfResult = '0';
-    BinaryCode bi_result_remainder = new BinaryCode(0); // binary fractional part of the result
+    private BinaryCode intermidiateDividend = new BinaryCode(0);
+    private BinaryCode intermidiateResult = new BinaryCode(0);
+    private Character signOfResult = '0';
 
-    int signif_part_size_element1;
-    int signif_part_size_element2;
-    int signif_part_position_element1;
-    int signif_part_position_element2;
-    int size_of_int_part_of_result = 0;
-    int size_of_remainder = 0;
-    int counter = 0;
+    private BinaryCode binResultRemainder = new BinaryCode(0); // binary fractional part of the result
 
+    private final int signifPartSizeElement2;
+    private final int signifPartPositionElement1;
+    private int sizeOfIntPartOfResult;
+    private int sizeOfRemainder;
+    private int counter;
 
     public BinaryDivision(int el1, int el2) {
         super(Math.abs(el1), Math.abs(el2));
-        element1 = el1;
-        element2 = el2;
+        setElement1(el1);
+        setElement2(el2);
         placeSign();
-        element1 = Math.abs(el1);
-        element2 = Math.abs(el2);
+        setElement1(Math.abs(el1));
+        setElement2(Math.abs(el2));
 
-        signif_part_position_element1 = (bi_element1.getBinRepresent().indexOf('1'));
-        signif_part_size_element1 = bi_element1.findSignifPartSize();
-        signif_part_position_element2 = (bi_element2.getBinRepresent().indexOf('1'));
-        signif_part_size_element2 = bi_element2.findSignifPartSize();
+        signifPartPositionElement1 = getBinElement1().getBinRepresent().indexOf('1');
+        int signifPartSizeElement1 = getBinElement1().findSignifPartSize();
+        int signifPartPositionElement2 = getBinElement2().getBinRepresent().indexOf('1');
+        signifPartSizeElement2 = getBinElement2().findSignifPartSize();
 
-        size_of_remainder = signif_part_size_element2;
+        sizeOfRemainder = signifPartSizeElement2;
 
-        counter = (WordLength-1) - (signif_part_size_element1 - signif_part_size_element2);
+        counter = (getWordLength()-1) - (signifPartSizeElement1 - signifPartSizeElement2);
     }
 
-    public void execBinaryDiv() {
-        if (checkForBelowOneResult()) return;
+    public double execBinaryDiv() {
+        if (checkForBelowOneResult()) return countRemainder();
 
-        IntermidDividend = bi_element1.leaveCertainDigits(signif_part_size_element2);
-        size_of_remainder = signif_part_size_element2;
+        double result = 0;
+        intermidiateDividend = getBinElement1().leaveCertainDigits(signifPartSizeElement2);
+        sizeOfRemainder = signifPartSizeElement2;
 
-        for (int i = signif_part_position_element1 + signif_part_size_element2 - 1; i < WordLength && i > 0 && counter < 32; i++) {
-            if (checkForSizeIncompatibilityToSkipIteration(i)) continue;
-            if (checkForLastZeroesToSkipIteration(i)) break;
+        for (int position = signifPartPositionElement1 + signifPartSizeElement2 - 1; position < getWordLength() && position > 0 && counter < 32; position++) {
+            if (checkForSizeIncompatibilityToSkipIteration(position)) continue;
+            if (checkForLastZeroesToSkipIteration(position)) break;
 
-            DifSolver = new BinarySumDiff(Integer.parseInt(IntermidDividend.toString(), 2), element2);
-            DifSolver.execBinaryDiff();
-            IntermidResult = DifSolver.bi_result;
+            difSolver = new BinarySumDiff(Integer.parseInt(intermidiateDividend.toString(), 2), getElement2());
+            difSolver.execBinaryDiff();
+            intermidiateResult = difSolver.getBinResult();
 
-            processingCurrentRemainder();
+            processingCurrentRemainder(intermidiateDividend, intermidiateResult);
 
-            if (i + 1 < WordLength) getNewDigit(i);
+            if (position + 1 < getWordLength()) getNewDigit(position);
         }
-
-        size_of_int_part_of_result = bi_result.findSignifPartSize();
-        if (!IntermidResult.checkForNullEquality()) {
-            countRemainder();
+        sizeOfIntPartOfResult = getBinResult().findSignifPartSize();
+        if (!intermidiateResult.checkForNullEquality()) {
+            return countRemainder();
         }
-        processCodeRepresentation();
-        bi_result.getBinRepresent().set(0, SignOfResult);
-        if (SignOfResult == '1') result *= -1;
-        //System.out.println("Log:   BiDiv = " + result);
+        result += (double) processCodeRepresentation();
+        getBinResult().getBinRepresent().set(0, signOfResult);
+        if (signOfResult == '1') result *= -1;
+        return result;
     }
 
     private boolean checkForBelowOneResult() {
-        if (Math.abs(element1) < Math.abs(element2)) {
-            IntermidResult = bi_element1;
-            countRemainder();
+        if (Math.abs(getElement1()) < Math.abs(getElement2())) {
+            intermidiateResult = getBinElement1();
             return true;
         }
         return false;
     }
 
 
-    private void countRemainder() {
+    private double countRemainder() {
         counter = 0;
-        IntermidDividend = IntermidResult;
-        size_of_int_part_of_result = bi_result.findSignifPartSize();
+        intermidiateDividend = intermidiateResult;
+        sizeOfIntPartOfResult = getBinResult().findSignifPartSize();
         getNewDigit();
-        for (int i = 0; i < 5; i++) {
+        double result;
+        for (int iter = 0; iter < 5; iter++) {
             if (checkForSizeIncompatibilityToSkipIteration()) continue;
 
-            DifSolver = new BinarySumDiff(Integer.parseInt(IntermidDividend.toString(), 2), element2);
-            DifSolver.execBinaryDiff();
-            IntermidResult = DifSolver.bi_result;
+            difSolver = new BinarySumDiff(Integer.parseInt(intermidiateDividend.toString(), 2), getElement2());
+            difSolver.execBinaryDiff();
+            intermidiateResult = difSolver.getBinResult();
 
             if (processingCurrentRemainderOfRemainder()) break;
 
             getNewDigit();
         }
-        processCodeRepresentation();
-        bi_result.getBinRepresent().set(0, SignOfResult);
-        if (SignOfResult == '1') result *= -1;
-        //System.out.println("Log:   BiDiv = " + result);
+
+        result = processCodeRepresentation();
+        getBinResult().getBinRepresent().set(0, signOfResult);
+        if (signOfResult == '1') result *= -1;
+        return result;
     }
 
     private boolean processingCurrentRemainderOfRemainder() {                       //анализ остатка при нахождении остатка от деления
-        if (IntermidResult.checkForNullEquality()) {//остаток равен 0
-            bi_result = bi_result.makeZeroShift(1);
-            bi_result.getBinRepresent().set(31, '1');
+        if (intermidiateResult.checkForNullEquality()) {//остаток равен 0
+            setBinResult(getBinResult().makeZeroShift(1));
+            getBinResult().getBinRepresent().set(31, '1');
             return true;
-        } else if (IntermidResult.getBinRepresent().get(0) == '0' && IntermidResult.getBinRepresent().get(1) == '0') { //остаток положительный
-            bi_result = bi_result.makeZeroShift(1);
-            bi_result.getBinRepresent().set((WordLength-1), '1');
-            size_of_remainder = IntermidResult.findSignifPartSize();
-            IntermidDividend = IntermidResult;
+        } else if (intermidiateResult.getBinRepresent().get(0) == '0' && intermidiateResult.getBinRepresent().get(1) == '0') { //остаток положительный
+            setBinResult(getBinResult().makeZeroShift(1));
+            getBinResult().getBinRepresent().set((getWordLength()-1), '1');
+            sizeOfRemainder = intermidiateResult.findSignifPartSize();
+            intermidiateDividend = intermidiateResult;
         } else { //другое
-            bi_result = bi_result.makeZeroShift(1);
-            size_of_remainder = IntermidResult.findSignifPartSize();
-            IntermidResult = IntermidDividend;
+            setBinResult(getBinResult().makeZeroShift(1));
+            sizeOfRemainder = intermidiateResult.findSignifPartSize();
+            intermidiateResult = intermidiateDividend;
         }
         return false;
     }
 
 
-    private void processingCurrentRemainder() {
-        if (IntermidResult.checkForNullEquality()) {//остаток равен 0
-            bi_result.getBinRepresent().set(counter++, '1');
-            size_of_remainder = 0;
-            IntermidResult = new BinaryCode(0);
-        } else if (IntermidResult.getBinRepresent().get(0) == '0' && IntermidResult.getBinRepresent().get(1) == '0') { //остаток положительный
-            bi_result.getBinRepresent().set(counter++, '1');
-            size_of_remainder = IntermidResult.findSignifPartSize();
+    private void processingCurrentRemainder(BinaryCode dividend, BinaryCode result) {
+        if (result.checkForNullEquality()) {//остаток равен 0
+            getBinResult().getBinRepresent().set(counter++, '1');
+            sizeOfRemainder = 0;
+            result = new BinaryCode(0);
+        } else if (result.getBinRepresent().get(0) == '0' && result.getBinRepresent().get(1) == '0') { //остаток положительный
+            getBinResult().getBinRepresent().set(counter++, '1');
+            sizeOfRemainder = result.findSignifPartSize();
         } else { //другое
-            bi_result.getBinRepresent().set(counter++, '0');
-            size_of_remainder = IntermidDividend.findSignifPartSize();
-            IntermidResult = IntermidDividend;
+            getBinResult().getBinRepresent().set(counter++, '0');
+            sizeOfRemainder = dividend.findSignifPartSize();
+            result = dividend;
         }
     }
 
-    private void getNewDigit(int i) {                   //сносим новую цифру при делении
-        bi_result_remainder = IntermidResult;
-        getNewDigit();
-        bi_result_remainder.getBinRepresent().set((WordLength-1), bi_element1.getBinRepresent().get(i + 1));
+    private void getNewDigit(int position) {                   //сносим новую цифру при делении
+        binResultRemainder = intermidiateResult;
+        insertInRemainderNextDigitFromDivident();
+        binResultRemainder.getBinRepresent().set((getWordLength()-1), getBinElement1().getBinRepresent().get(position + 1));
     }
 
+
     private void getNewDigit() {
-        bi_result_remainder = IntermidResult;
+        binResultRemainder = intermidiateResult;
         insertInRemainderNextDigitFromDivident();
     }
 
-    private boolean checkForLastZeroesToSkipIteration(int i) {
-        if (IntermidDividend.checkForNullEquality() && (i == (WordLength-1)) && counter < WordLength && IntermidResult.checkForNullEquality()) {
-            bi_result.getBinRepresent().set(counter++, '0');
+    private boolean checkForLastZeroesToSkipIteration(int position) {
+        if (intermidiateDividend.checkForNullEquality() && (position == (getWordLength()-1)) && counter < getWordLength() && intermidiateResult.checkForNullEquality()) {
+            getBinResult().getBinRepresent().set(counter++, '0');
 
             return true;
         }
         return false;
     }
 
-    private boolean checkForSizeIncompatibilityToSkipIteration(int i) {
-        if (size_of_remainder < signif_part_size_element2 && i + 1 < WordLength) {
+    private boolean checkForSizeIncompatibilityToSkipIteration(int position) {
+        if (sizeOfRemainder < signifPartSizeElement2 && position + 1 < getWordLength()) {
 
-            bi_result.getBinRepresent().set(counter++, '0');
-            insertInRemainderNextDigitFromDivident(i);
+            getBinResult().getBinRepresent().set(counter++, '0');
+            insertInRemainderNextDigitFromDivident(position);
 
             return true;
         }
@@ -162,22 +160,22 @@ public class BinaryDivision extends BinaryArithmetic {
     }
 
     private void insertInRemainderNextDigitFromDivident() {
-        bi_result_remainder = bi_result_remainder.makeZeroShift(1);
+        binResultRemainder = binResultRemainder.makeZeroShift(1);
 
-        size_of_remainder = bi_result_remainder.findSignifPartSize();
-        IntermidDividend = bi_result_remainder;
+        sizeOfRemainder = binResultRemainder.findSignifPartSize();
+        intermidiateDividend = binResultRemainder;
     }
-    private void insertInRemainderNextDigitFromDivident(int i) {
-        insertInRemainderNextDigitFromDivident();
 
-        bi_result_remainder.getBinRepresent().set((WordLength-1), bi_element1.getBinRepresent().get(i + 1));
+    private void insertInRemainderNextDigitFromDivident(int position) {
+        insertInRemainderNextDigitFromDivident();
+        binResultRemainder.getBinRepresent().set((getWordLength()-1), getBinElement1().getBinRepresent().get(position + 1));
     }
 
 
     private boolean checkForSizeIncompatibilityToSkipIteration() {
-        if (size_of_remainder < signif_part_size_element2) {
+        if (sizeOfRemainder < signifPartSizeElement2) {
 
-            bi_result = bi_result.makeZeroShift(1);
+            setBinResult(getBinResult().makeZeroShift(1));
             insertInRemainderNextDigitFromDivident();
 
             return true;
@@ -186,31 +184,33 @@ public class BinaryDivision extends BinaryArithmetic {
     }
 
     @Override
-    void processCodeRepresentation() {                              //перевод результата в десятичную СС
+    double processCodeRepresentation() {                              //перевод результата в десятичную СС
         double remainder = 0;
+        double result = 0;
 
-        size_of_remainder = bi_result.findSignifPartSize() - size_of_int_part_of_result;
-        if (size_of_remainder != 0) {
+        sizeOfRemainder = getBinResult().findSignifPartSize() - sizeOfIntPartOfResult;
+
+        if (sizeOfRemainder != 0) {
 
             StringBuilder RemainderOnly = new StringBuilder();
-            for (int i = WordLength - size_of_remainder; i < WordLength; i++)
-                RemainderOnly.append(bi_result.getBinRepresent().get(i));
+            for (int iter = getWordLength() - sizeOfRemainder; iter < getWordLength(); iter++)
+                RemainderOnly.append(getBinResult().getBinRepresent().get(iter));
 
             remainder = Integer.parseInt(RemainderOnly.toString(), 2);
-            remainder /= Math.pow(2, size_of_remainder);
+            remainder /= Math.pow(2, sizeOfRemainder);
         }
 
-        if(!bi_result.checkForNullEquality())
+        if(!getBinResult().checkForNullEquality())
             result = Integer.parseInt(
-                    bi_result.leaveCertainDigits(size_of_int_part_of_result).toString(),2);
+                    getBinResult().leaveCertainDigits(sizeOfIntPartOfResult).toString(),2);
         result += remainder;
+        return result;
     }
 
     @Override
     protected void placeSign() {
-        if (new BinaryCode(element1).getBinRepresent().get(0)
-                != new BinaryCode(element2).getBinRepresent().get(0))
-            SignOfResult = '1';
+        if (new BinaryCode(getElement1()).getBinRepresent().get(0)
+                != new BinaryCode(getElement2()).getBinRepresent().get(0))
+            signOfResult = '1';
     }
-
 }

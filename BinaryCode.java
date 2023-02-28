@@ -3,37 +3,34 @@ import java.util.Objects;
 
 public class BinaryCode {
 
-    private ArrayList<Character> BinaryRepresentation;
-    private int WordLength = 32;
+    private ArrayList<Character> binaryRepresentation;
+    private final int WORD_LENGTH;
 
     public void setBiRepresent(ArrayList<Character> biRepresent) {
-        BinaryRepresentation = biRepresent;
+        binaryRepresentation = biRepresent;
     }
     public ArrayList<Character> getBinRepresent() {
-        return BinaryRepresentation;
+        return binaryRepresentation;
     }
     public int getWordLength() {
-        return WordLength;
+        return WORD_LENGTH;
     }
-    public int setWordLength(int newWordLengt) {
-        return WordLength = newWordLengt;
+    public BinaryCode(int integer) {
+        WORD_LENGTH = 32;
+        toDirectCode(integer);
     }
-
-    public BinaryCode(int i) {
-        toDirectCode(i);
+    public BinaryCode(int integer, int wordLength) {
+        WORD_LENGTH = wordLength;
+        toDirectCode(integer);
     }
-    public BinaryCode(int i, int word_length) {
-        WordLength = word_length;
-        toDirectCode(i);
-    }
-    public BinaryCode(BinaryCode that, int word_length) {
-        WordLength = word_length;
-        BinaryRepresentation = (ArrayList<Character>) that.BinaryRepresentation.clone();
+    public BinaryCode(BinaryCode that, int wordLength) {
+        WORD_LENGTH = wordLength;
+        binaryRepresentation = (ArrayList<Character>) that.binaryRepresentation.clone();
     }
 
-    void toAdditionalCode(int i) { //was rename intejer -> i , i -> j
-        if (i < 0){
-            toReverseCode(i);
+    void toAdditionalCode(int integer) {
+        if (integer < 0){
+            toReverseCode(integer);
             plusOneBit();
         }
     }
@@ -42,129 +39,128 @@ public class BinaryCode {
         toReverseCode(-1);
     }
 
-    void toReverseCode(int i) {
+    void toReverseCode(int integer) {
 
-        if (i < 0) {
+        if (integer < 0) {
             invertSignificantBits();
-            BinaryRepresentation.set(0, '1');
+            binaryRepresentation.set(0, '1');
         }
     }
-    void toDirectCode(int i) {
-        ArrayList<Character> DirectCode = new ArrayList<>();
-        int modulo = Math.abs(i);
+    void toDirectCode(int integer) {
+        ArrayList<Character> directCode = new ArrayList<>();
+        int modulo = Math.abs(integer);
 
-        for (char ch : Integer.toBinaryString(modulo).toCharArray()) {
-            DirectCode.add(ch);
+        for (char character : Integer.toBinaryString(modulo).toCharArray()) {
+            directCode.add(character);
         }
 
-        toFullLength(DirectCode);
-        DirectCode.set(0, (i >= 0) ? '0' : '1');
+        toFullLength(directCode);
+        directCode.set(0, (integer >= 0) ? '0' : '1');
 
-        BinaryRepresentation = DirectCode;
+        binaryRepresentation = directCode;
 
     }
     void plusOneBit() {
-        boolean BitShift = true;
-        for (int j = (WordLength - 1); j >= 0 && BitShift; j--) {
-            char to_be_put = (BinaryRepresentation.get(j) == '0') ? '1' : '0';
-            BitShift = (to_be_put == '0') ? true : false;
-            BinaryRepresentation.set(j, to_be_put);
+        boolean bitShift = true;
+        for (int iter = (WORD_LENGTH - 1); iter >= 0 && bitShift; iter--) {
+            char to_be_put = (binaryRepresentation.get(iter) == '0') ? '1' : '0';
+            bitShift = (to_be_put == '0');
+            binaryRepresentation.set(iter, to_be_put);
         }
     }
 
     void minusOneBit() {
-        boolean BitShift = true;
-        for (int j = (WordLength - 1); j >= 0 && BitShift; j--) {
-            char to_be_put = (BinaryRepresentation.get(j) == '1') ? '0' : '1';
-            BitShift = (to_be_put == '0') ? false : true;
-            BinaryRepresentation.set(j, to_be_put);
+        boolean bitShift = true;
+        for (int j = (WORD_LENGTH - 1); j >= 0 && bitShift; j--) {
+            char to_be_put = (binaryRepresentation.get(j) == '1') ? '0' : '1';
+            bitShift = (to_be_put != '0');
+            binaryRepresentation.set(j, to_be_put);
         }
     }
 
-    protected BinaryCode makeZeroShift(int num_of_shifts) {             //сдвигает значущую часть числа на определенное кол-во нулей влево
-        BinaryCode result = new BinaryCode(0, WordLength);
-        for (int i = (WordLength - 1) - num_of_shifts, j = (WordLength - 1); i >= 0; i--, j--) {
-            result.getBinRepresent().set(i, BinaryRepresentation.get(j));
+    protected BinaryCode makeZeroShift(int numOfShifts) {             //сдвигает значущую часть числа на определенное кол-во нулей влево
+        BinaryCode result = new BinaryCode(0, WORD_LENGTH);
+        for (int iter1 = (WORD_LENGTH - 1) - numOfShifts, iter2 = (WORD_LENGTH - 1); iter1 >= 0; iter1--, iter2--) {
+            result.getBinRepresent().set(iter1, binaryRepresentation.get(iter2));
         }
         return result;
     }
 
     public void toFullLength(ArrayList<Character> BinaryCode) {
-        int leftBits = WordLength - BinaryCode.size();
+        int leftBits = WORD_LENGTH - BinaryCode.size();
 
         while (leftBits-- != 0) BinaryCode.add(0, '0');
 
     }
     public void invertSignificantBits() {
-        for (int i = 0; i < BinaryRepresentation.size(); i++) {
-            if (BinaryRepresentation.get(i) == '0') {
-                BinaryRepresentation.set(i, '1');
+        for (int iter = 0; iter < WORD_LENGTH; iter++) {
+            if (binaryRepresentation.get(iter) == '0') {
+                binaryRepresentation.set(iter, '1');
             } else {
-                BinaryRepresentation.set(i, '0');
+                binaryRepresentation.set(iter, '0');
             }
         }
     }
 
-    public BinaryCode leaveCertainDigits(int num_of_digits) {               //оставляет определенное кол-во разрядов из представления числа, создавая новое число
-        BinaryCode result = new BinaryCode(0, WordLength);
-        int position_of_signif_part = BinaryRepresentation.indexOf('1');
-        int shift = WordLength  - position_of_signif_part - num_of_digits;
+    public BinaryCode leaveCertainDigits(int numOfDigits) {               //оставляет определенное кол-во разрядов из представления числа, создавая новое число
+        BinaryCode result = new BinaryCode(0, WORD_LENGTH);
+        int positionOfSignifPart = binaryRepresentation.indexOf('1');
+        int shift = WORD_LENGTH - positionOfSignifPart - numOfDigits;
         if(shift < 0)
             return this;
-        for (int i = position_of_signif_part + shift, j = position_of_signif_part; i < WordLength; i++, j++) {
-            result.getBinRepresent().set(i, BinaryRepresentation.get(j));
+        for (int iter1 = positionOfSignifPart + shift, iter2 = positionOfSignifPart; iter1 < WORD_LENGTH; iter1++, iter2++) {
+            result.getBinRepresent().set(iter1, binaryRepresentation.get(iter2));
         }
         return result;
     }
 
     public boolean checkForNullEquality() {
         int counter = 0;
-        for (Character ch : BinaryRepresentation) {
-            if (ch == '1') counter++;
+        for (Character character : binaryRepresentation) {
+            if (character == '1') counter++;
         }
-        if(counter == WordLength)
+        if(counter == WORD_LENGTH)
             return true;
         counter = 0;
-        for (Character ch : BinaryRepresentation) {
-            if (ch == '0') counter++;
+        for (Character character : binaryRepresentation) {
+            if (character == '0') counter++;
         }
-        if(counter == WordLength)
+        if(counter == WORD_LENGTH)
             return true;
 
         return false;
     }
 
     public int findSignifPartSize() {
-        char temp = BinaryRepresentation.get(0);
-        BinaryRepresentation.set(0, '0');
-        int signif_part_position_element = (BinaryRepresentation.indexOf('1'));
-        BinaryRepresentation.set(0, temp);
-        if (signif_part_position_element == -1) {
+        char temp = binaryRepresentation.get(0);
+        binaryRepresentation.set(0, '0');
+        int signifPartPositionElement = (binaryRepresentation.indexOf('1'));
+        binaryRepresentation.set(0, temp);
+        if (signifPartPositionElement == -1) {
             return 0;
         }
-        return WordLength - signif_part_position_element;
+        return WORD_LENGTH - signifPartPositionElement;
     }
     public int findUnsignedSignifPartSize() {
-        int signif_part_position_element = (BinaryRepresentation.indexOf('1'));
-        if (signif_part_position_element == -1) {
+        int signifPartPositionElement = (binaryRepresentation.indexOf('1'));
+        if (signifPartPositionElement == -1) {
             return 0;
         }
-        return WordLength - signif_part_position_element;
+        return WORD_LENGTH - signifPartPositionElement;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BinaryCode that = (BinaryCode) o;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        BinaryCode that = (BinaryCode) obj;
 
-        Character to_keep = that.BinaryRepresentation.get(0);
-        that.BinaryRepresentation.set(0, BinaryRepresentation.get(0));
+        Character toKeep = that.binaryRepresentation.get(0);
+        that.binaryRepresentation.set(0, binaryRepresentation.get(0));
 
-        boolean ans = BinaryRepresentation.equals(that.BinaryRepresentation);
+        boolean ans = binaryRepresentation.equals(that.binaryRepresentation);
 
-        that.BinaryRepresentation.set(0, to_keep);
-
+        that.binaryRepresentation.set(0, toKeep);
         return ans;
     }
 
@@ -172,7 +168,7 @@ public class BinaryCode {
     public String toString() {
         StringBuilder res = new StringBuilder();
 
-        for (Character ch : BinaryRepresentation) {
+        for (Character ch : binaryRepresentation) {
             res.append(ch);
         }
 
@@ -180,6 +176,6 @@ public class BinaryCode {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(BinaryRepresentation);
+        return Objects.hash(binaryRepresentation);
     }
 }

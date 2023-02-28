@@ -1,63 +1,67 @@
 import java.util.Scanner;
 
 public class BinaryArithmeticInterface {
-    static boolean isOn = true;
+    private static boolean isOn = true;
+    private static final Scanner in = new Scanner(System.in);
 
     static void run() {
         while (isOn) {
             System.out.println("Choose the task you want to check\n 1. Sum\t 2. Difference" +
                     "\t 3. Multiplication\t 4. Division\t 5. Sum according to IEEE754-2008\t 0. Exit");
-            Scanner in = new Scanner(System.in);
-            int num = in.nextInt();
-            int el1 = 0, el2 = 0;
-            switch (num) {
-                case 1:
-                    System.out.println("Enter values");
-                    el1 = in.nextInt();
-                    el2 = in.nextInt();
-                    BinarySumDiff sum = new BinarySumDiff(el1, el2);
-                    sum.execBinarySum();
-                    System.out.printf("%d + %d = %d \n", el1, el2, (int)sum.result);
-                    break;
-                case 2:
-                    System.out.println("Enter values");
-                    el1 = in.nextInt();
-                    el2 = in.nextInt();
-                    BinarySumDiff dif = new BinarySumDiff(el1, el2);
-                    dif.execBinaryDiff();
-                    System.out.printf("%d - %d = %d \n", el1, el2, (int)dif.result);
-                    break;
-                case 3:
-                    System.out.println("Enter values");
-                    el1 = in.nextInt();
-                    el2 = in.nextInt();
-                    BinaryMultipl multi = new BinaryMultipl(el1, el2);
-                    multi.execBinaryMultipl();
-                    System.out.printf("%d * %d = %d \n" , el1, el2,(int) multi.result);
-                    break;
-                case 4:
-                    System.out.println("Enter values");
-                    el1 = in.nextInt();
-                    el2 = in.nextInt();
-                    BinaryDivision div = new BinaryDivision(el1, el2);
-                    div.execBinaryDiv();
-                    System.out.printf("%d / %d = %f \n" , el1, el2, div.result);
-                    break;
-                case 5:
-                    System.out.println("Enter values");
-                    double d_el1 = Double.parseDouble(in.next());
-                    double d_el2 = Double.parseDouble(in.next());
-                    BinarySumIEEE754 d_sum = new BinarySumIEEE754(d_el1, d_el2);
-                    d_sum.execBinarySumIEEE754();
-                    if (d_sum.result < 1 || d_el1 < 1 || d_el2 < 1) {
-                        System.out.printf("%s + %s = %s\n" , Double.toString(d_el1), Double.toString(d_el2), Double.toString(d_sum.result));
-                        break;
-                    }
-                    System.out.printf("%f + %f = %f\n" , d_el1, d_el2, d_sum.result);
-                    break;
-                case 0:
-                    isOn = false;
-            }
+            getArithmeticCase(in.nextInt());
         }
+    }
+
+    private static void getArithmeticCase(int numberOfCase) {
+        System.out.println("Enter values");
+        switch (numberOfCase) {
+            case 1:
+                runBinarySum(in.nextInt(), in.nextInt());
+                break;
+            case 2:
+                runBinaryDiff(in.nextInt(), in.nextInt());
+                break;
+            case 3:
+                runBinaryMultipl(in.nextInt(), in.nextInt());
+                break;
+            case 4:
+                runBinaryDivision(in.nextInt(), in.nextInt());
+                break;
+            case 5:
+                runBinarySumIEEE754(Double.parseDouble(in.next()), Double.parseDouble(in.next()));
+                break;
+            case 0:
+                isOn = false;
+        }
+    }
+
+    private static void runBinarySum(int el1, int el2) {
+        BinarySumDiff sum = new BinarySumDiff(el1, el2);
+        System.out.printf("%d + %d = %d\n", el1, el2, sum.execBinarySum());
+    }
+    private static void runBinaryDiff(int el1, int el2) {
+        BinarySumDiff dif = new BinarySumDiff(el1, el2);
+        System.out.printf("%d - %d = %d\n", el1, el2, dif.execBinaryDiff());
+    }
+    private static void runBinaryMultipl(int el1, int el2) {
+        BinaryMultipl multi = new BinaryMultipl(el1, el2);
+        System.out.printf("%d * %d = %d\n", el1, el2, multi.execBinaryMultipl());
+    }
+    private static void runBinaryDivision(int el1, int el2) {
+        BinaryDivision div = new BinaryDivision(el1, el2);
+        double result = div.execBinaryDiv();
+        System.out.printf("%d / %d = %.8f\n", el1, el2, result);
+    }
+
+    private static void runBinarySumIEEE754(double el1, double el2) {
+
+        BinarySumIEEE754 sumInDouble = new BinarySumIEEE754(el1, el2);
+        double result = sumInDouble.execBinarySumIEEE754();
+        if (result < 1 || el1 < 1 || el2 < 1) {
+            System.out.printf("%.5f + %.5f = %.5f\n", el1, el2, result);
+        } else {
+            System.out.printf("%f + %f = %f\n", el1, el2, result);
+        }
+
     }
 }
