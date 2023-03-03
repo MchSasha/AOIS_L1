@@ -104,11 +104,11 @@ public class BinaryCode {
 
     public BinaryCode leaveCertainDigits(int numOfDigits) {               //оставляет определенное кол-во разрядов из представления числа, создавая новое число
         BinaryCode result = new BinaryCode(0, WORD_LENGTH);
-        int positionOfSignifPart = binaryRepresentation.indexOf('1');
-        int shift = WORD_LENGTH - positionOfSignifPart - numOfDigits;
+        int positionOfSignificantPart = binaryRepresentation.indexOf('1');
+        int shift = WORD_LENGTH - positionOfSignificantPart - numOfDigits;
         if(shift < 0)
             return this;
-        for (int iter1 = positionOfSignifPart + shift, iter2 = positionOfSignifPart; iter1 < WORD_LENGTH; iter1++, iter2++) {
+        for (int iter1 = positionOfSignificantPart + shift, iter2 = positionOfSignificantPart; iter1 < WORD_LENGTH; iter1++, iter2++) {
             result.getBinRepresent().set(iter1, binaryRepresentation.get(iter2));
         }
         return result;
@@ -125,28 +125,26 @@ public class BinaryCode {
         for (Character character : binaryRepresentation) {
             if (character == '0') counter++;
         }
-        if(counter == WORD_LENGTH)
-            return true;
 
-        return false;
+        return counter == WORD_LENGTH;
     }
 
-    public int findSignifPartSize() {
+    public int findSignificantPartSize() {
         char temp = binaryRepresentation.get(0);
         binaryRepresentation.set(0, '0');
-        int signifPartPositionElement = (binaryRepresentation.indexOf('1'));
+        int significantPartPositionElement = (binaryRepresentation.indexOf('1'));
         binaryRepresentation.set(0, temp);
-        if (signifPartPositionElement == -1) {
+        if (significantPartPositionElement == -1) {
             return 0;
         }
-        return WORD_LENGTH - signifPartPositionElement;
+        return WORD_LENGTH - significantPartPositionElement;
     }
-    public int findUnsignedSignifPartSize() {
-        int signifPartPositionElement = (binaryRepresentation.indexOf('1'));
-        if (signifPartPositionElement == -1) {
+    public int findUnsignedSignificantPartSize() {
+        int significantPartPositionElement = (binaryRepresentation.indexOf('1'));
+        if (significantPartPositionElement == -1) {
             return 0;
         }
-        return WORD_LENGTH - signifPartPositionElement;
+        return WORD_LENGTH - significantPartPositionElement;
     }
 
     @Override

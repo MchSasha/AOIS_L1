@@ -52,37 +52,11 @@ public class BinarySumIEEE754 extends BinaryArithmeticIEEE754 {
         return result;
     }
 
-    private boolean binaryAdderFromCertainPlace(int positonToRepeat) {                //сумматор для пересчета случая с переполнением
-        for (int iter = positonToRepeat-1; iter >= 0; iter--) {
-            char toBePut = getBinElement2().getBinRepresent().get(iter);
-            char alreadyThere = getBinElement1().getBinRepresent().get(iter);
-
-            if (toBePut == '0') {
-                getBinResult().getBinRepresent().set(iter, alreadyThere);
-                continue;
-            }
-            if (alreadyThere == '0') {
-                getBinResult().getBinRepresent().set(iter, toBePut);
-                continue;
-            }
-            if ((getBinResult().getBinRepresent().get(iter) =='0')) {
-                makeShift(iter); continue;
-            }
-            if (iter == 0) {
-                getBinResult().getBinRepresent().add(0, '1');
-                getBinResult().getBinRepresent().remove(getWordLength());
-                return true;
-            }
-            makeShift(iter);
-        }
-        return false;
-    }
-
     void convertToBinaryRepresent(String el1, String el2 ) {
         convertToIntBinaryRepresent(el1, el2);
 
-        setExpElement1( new BinaryCode(getBinElement1().findUnsignedSignifPartSize(), getExpWordLength()));
-        setExpElement2 (new BinaryCode(getBinElement2().findUnsignedSignifPartSize(), getExpWordLength()));
+        setExpElement1( new BinaryCode(getBinElement1().findUnsignedSignificantPartSize(), getExpWordLength()));
+        setExpElement2 (new BinaryCode(getBinElement2().findUnsignedSignificantPartSize(), getExpWordLength()));
 
         convertToFractBinaryRepresent(el1, el2);
         toNormalizedForm();
@@ -138,7 +112,7 @@ public class BinarySumIEEE754 extends BinaryArithmeticIEEE754 {
     private BinaryCode getBiRepresentOfFractPart(BinaryCode intPart, double fractionalPart) {                //алгоритм перевода дробной части в двоичную СС
 
         double remainder = fractionalPart;
-        int availableDigits = getWordLength() - intPart.findSignifPartSize();
+        int availableDigits = getWordLength() - intPart.findSignificantPartSize();
 
         while (remainder > 0 && (availableDigits--) > 0) {
             remainder *= 2.0;
@@ -155,16 +129,14 @@ public class BinarySumIEEE754 extends BinaryArithmeticIEEE754 {
     private void convertToIntBinaryRepresent(String el1, String el2) {                          //перевод целой части числа в двоичную СС
         int dotPosition = el1.indexOf('.');
 
-        String int_part = el1.substring(0, dotPosition);
-        int sizeOfIntPartEl1 = int_part.length();
-        setElement1(Integer.parseInt(int_part));
+        String intPart = el1.substring(0, dotPosition);
+        setElement1(Integer.parseInt(intPart));
         setBinElement1(new BinaryCode(getElement1(), getWordLength()));
 
         dotPosition = el2.indexOf('.');
 
-        int_part = el2.substring(0, dotPosition);
-        int sizeOfIntPartEl2 = int_part.length();
-        setElement2(Integer.parseInt(int_part));
+        intPart = el2.substring(0, dotPosition);
+        setElement2(Integer.parseInt(intPart));
         setBinElement2(new BinaryCode(getElement2(), getWordLength()));
     }
 
@@ -179,10 +151,10 @@ public class BinarySumIEEE754 extends BinaryArithmeticIEEE754 {
 
         if (numOfShifts > 0) {
             setExpElement2(getExpElement1());
-            setBinElement2(getBinElement2().leaveCertainDigits(getBinElement2().findUnsignedSignifPartSize() - numOfShifts));
+            setBinElement2(getBinElement2().leaveCertainDigits(getBinElement2().findUnsignedSignificantPartSize() - numOfShifts));
         } else {
             setExpElement1(getExpElement2());
-            setBinElement1(getBinElement1().leaveCertainDigits(getBinElement1().findUnsignedSignifPartSize() + numOfShifts));
+            setBinElement1(getBinElement1().leaveCertainDigits(getBinElement1().findUnsignedSignificantPartSize() + numOfShifts));
         }
     }
 }
