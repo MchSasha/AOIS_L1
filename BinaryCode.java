@@ -73,9 +73,9 @@ public class BinaryCode {
     void minusOneBit() {
         boolean bitShift = true;
         for (int j = (WORD_LENGTH - 1); j >= 0 && bitShift; j--) {
-            char to_be_put = (binaryRepresentation.get(j) == '1') ? '0' : '1';
-            bitShift = (to_be_put != '0');
-            binaryRepresentation.set(j, to_be_put);
+            char toBePut = (binaryRepresentation.get(j) == '1') ? '0' : '1';
+            bitShift = (toBePut != '0');
+            binaryRepresentation.set(j, toBePut);
         }
     }
 
