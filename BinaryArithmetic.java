@@ -59,7 +59,7 @@ public class BinaryArithmetic {
     }
 
     public BinaryArithmetic(int el1, int el2) {
-        WORD_LENGTH = 32;
+        WORD_LENGTH = BinaryCode.WORLD_LENGTH32;
         element1 = el1;
         element2 = el2;
 

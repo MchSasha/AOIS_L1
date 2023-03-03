@@ -5,6 +5,7 @@ public class BinaryCode {
 
     private ArrayList<Character> binaryRepresentation;
     private final int WORD_LENGTH;
+    public static final int WORLD_LENGTH32 = 32;
 
     public void setBiRepresent(ArrayList<Character> biRepresent) {
         binaryRepresentation = biRepresent;
@@ -16,7 +17,7 @@ public class BinaryCode {
         return WORD_LENGTH;
     }
     public BinaryCode(int integer) {
-        WORD_LENGTH = 32;
+        WORD_LENGTH = WORLD_LENGTH32;
         toDirectCode(integer);
     }
     public BinaryCode(int integer, int wordLength) {
