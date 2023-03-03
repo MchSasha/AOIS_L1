@@ -9,8 +9,8 @@ public class BinaryMultipl extends BinaryArithmetic{
 
         if (el1 < el2) changeSummand();
 
-        int last_digit = (getBinElement2().getBinRepresent().get(getWordLength()-1) == '1') ? 1 : 0;
-        intermidiateResult = new BinaryCode(Math.abs(getElement1() * last_digit));
+        int lastDigit = (getBinElement2().getBinRepresent().get(getWordLength()-1) == '1') ? 1 : 0;
+        intermidiateResult = new BinaryCode(Math.abs(getElement1() * lastDigit));
     }
 
     public int execBinaryMultipl() {

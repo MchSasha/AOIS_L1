@@ -64,9 +64,9 @@ public class BinaryCode {
     void plusOneBit() {
         boolean bitShift = true;
         for (int iter = (WORD_LENGTH - 1); iter >= 0 && bitShift; iter--) {
-            char to_be_put = (binaryRepresentation.get(iter) == '0') ? '1' : '0';
-            bitShift = (to_be_put == '0');
-            binaryRepresentation.set(iter, to_be_put);
+            char toBePut = (binaryRepresentation.get(iter) == '0') ? '1' : '0';
+            bitShift = (toBePut == '0');
+            binaryRepresentation.set(iter, toBePut);
         }
     }
 

@@ -63,10 +63,7 @@ public class BinaryDivision extends BinaryArithmetic {
     }
 
     private boolean checkForBelowOneResult() {
-        if (Math.abs(getElement1()) < Math.abs(getElement2())) {
-            return true;
-        }
-        return false;
+        return Math.abs(getElement1()) < Math.abs(getElement2());
     }
 
 
@@ -117,14 +114,12 @@ public class BinaryDivision extends BinaryArithmetic {
         if (result.checkForNullEquality()) {//остаток равен 0
             getBinResult().getBinRepresent().set(counter++, '1');
             sizeOfRemainder = 0;
-            result = new BinaryCode(0);
         } else if (result.getBinRepresent().get(0) == '0' && result.getBinRepresent().get(1) == '0') { //остаток положительный
             getBinResult().getBinRepresent().set(counter++, '1');
             sizeOfRemainder = result.findSignificantPartSize();
         } else { //другое
             getBinResult().getBinRepresent().set(counter++, '0');
             sizeOfRemainder = dividend.findSignificantPartSize();
-            result = dividend;
         }
     }
 
